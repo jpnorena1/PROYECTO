@@ -78,7 +78,7 @@ const PatientInformation = () => {
 
     var config = {
       method: "post",
-      url: "https://y802ko2n3c.execute-api.us-east-2.amazonaws.com/dev/medico/registPat",
+      url: "https://gaxa5x44q1.execute-api.us-east-2.amazonaws.com/dev/administrador/registPat",
       headers: {
         "Content-Type": "application/json",
       },
@@ -338,25 +338,7 @@ const PatientInformation = () => {
             ) : null}
           </FormControl>
         </WrapperField>
-        <WrapperField className="d-flex flex-row justify-content-center">
-          <InputLabel htmlFor="firstName">Sexo</InputLabel>
 
-          <select
-            id="sex"
-            type="text"
-            onChange={formik.handleChange}
-            value={formik.values.sex}
-          >
-            <option>Masculino</option>
-            <option>Femenino</option>
-          </select>
-
-          {formik.errors.sex ? (
-            <FormHelperText id="component-error-text" error>
-              {formik.errors.sex}
-            </FormHelperText>
-          ) : null}
-        </WrapperField>
         <WrapperField className="d-flex flex-row justify-content-center">
           <FormControl>
             <Input

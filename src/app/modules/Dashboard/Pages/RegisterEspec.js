@@ -1,6 +1,7 @@
-import React from "react";
-import axios from "axios";
+import { React, useState, useEffect, useContext } from "react";
+import FormHelperText from "@material-ui/core/FormHelperText";
 import "./App.css";
+import { ToastContext } from "../../../../components/ToastContextProvider";
 import "bootstrap/dist/css/bootstrap.min.css";
 import {
   Table,
@@ -12,298 +13,405 @@ import {
   FormGroup,
   ModalFooter,
 } from "reactstrap";
+import * as Yup from "yup";
+import { useFormik } from "formik";
+import axios from "axios";
+import { useSelector } from "react-redux";
 
-const data = [
-  {
-    id: 1,
-    nombreEspecialidad: "",
-    descripcion: "",
-    fechaRegistro: "",
-    usuarioModif: "",
-    estado: "",
-    modificacionRegistro: "",
-  },
-];
+const RegisterEspec = () => {
+  const [data, setData] = useState([]);
+  const [dataTemp, setDataTemp] = useState([]);
+  const [modal, setModal] = useState(false);
+  const [modal2, setModal2] = useState(false);
+  const [modal3, setModal3] = useState(false);
+  const { notifyError, notifySuccess } = useContext(ToastContext);
+  const schemal = Yup.object().shape({
+    nombreEspecialidad: Yup.string()
+      .min(3, "Minimo 3 simbolos")
+      .max(50, "Maximum 50 symbols")
+      .required("Esta campo es requerido"),
+    descripcion: Yup.string()
+      .min(3, "Minimo 3 simbolos")
 
-class RegisterEspec extends React.Component {
-  state = {
-    data: data,
-    modalActualizar: false,
-    modalInsertar: false,
-    form: {
-      id: "",
+      .required("Esta campo es requerido"),
+
+    estado: Yup.string()
+      .min(3, "Minimum 3 nuemeros")
+      .max(10, "Maximo 10 numeros")
+      .required("Tiene que ser numero"),
+    phoneNumber: Yup.string()
+      .min(3, "Minimum 3 symbols")
+      .max(50, "Maximum 50 symbols")
+      .required("Esta campo es requerido"),
+    historynumber: Yup.string()
+      .min(3, "Minimum 3 symbols")
+      .max(50, "Maximum 50 symbols")
+      .required("Esta campo es requerido"),
+    email: Yup.string()
+      .min(3, "Minimum 3 symbols")
+      .max(50, "Maximum 50 symbols")
+      .required("Esta campo es requerido"),
+  });
+  const userActual = useSelector((state) => state.tokenStore.user.userId);
+  const formik = useFormik({
+    initialValues: {
+      nameUser: "",
+      phoneNumber: "",
       nombreEspecialidad: "",
       descripcion: "",
-      fechaRegistro: "",
-      usuarioModif: "",
       estado: "",
-      modificacionRegistro: "",
+      email: "",
     },
-  };
+    validationSchema: schemal,
+    onSubmit: (values) => {},
+  });
+  function addExpec() {
+    var data = {
+      nombreEspecialidad: formik.values.nombreEspecialidad,
+      estado: "Activo",
+      usuarioModifico: userActual,
+      usuarioAccion: userActual,
+      descripcionEspecialidad:
+        formik.values.descripcion === ""
+          ? "No hay descripcion"
+          : formik.values.descripcion,
+    };
 
-  mostrarModalActualizar = (dato) => {
-    this.setState({
-      form: dato,
-      modalActualizar: true,
-    });
-  };
+    var config = {
+      method: "post",
+      url: "https://gaxa5x44q1.execute-api.us-east-2.amazonaws.com/dev/especialidades/registrarEspecilidades",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      data: data,
+    };
 
-  cerrarModalActualizar = () => {
-    this.setState({ modalActualizar: false });
-  };
+    axios(config)
+      .then(function (response) {
+        console.log(response.data);
+        formik.resetForm();
+        notifySuccess("Especialidad registrada");
+        window.location.reload();
+        setModal3(false);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
+  function actualizarEspecialidad() {
+    var fin = new Date();
+    console.log(fin);
+    console.log(userActual);
+    console.log(dataTemp.especialidadId);
+    const idEsp = dataTemp.especialidadId;
+    var data = {
+      especialidadId: idEsp,
+      nombreEspecialidad: formik.values.nombreEspecialidad,
+      estado: formik.values.estado,
+      usuarioModifico: userActual,
+      fechaModificacion: fin,
+      usuarioAccion: userActual,
+      descripcionEspecialidad:
+        formik.values.descripcion === ""
+          ? dataTemp.descripcionEspecialidad
+          : formik.values.descripcion,
+    };
 
-  mostrarModalInsertar = () => {
-    this.setState({
-      modalInsertar: true,
-    });
-  };
+    var config = {
+      method: "post",
+      url: "https://gaxa5x44q1.execute-api.us-east-2.amazonaws.com/dev/especialidades/actEspecialidades",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      data: data,
+    };
 
-  cerrarModalInsertar = () => {
-    this.setState({ modalInsertar: false });
-  };
+    axios(config)
+      .then(function (response) {
+        setModal(false);
 
-  editar = (dato) => {
-    var contador = 0;
-    var arreglo = this.state.data;
-    arreglo.map((registro) => {
-      if (dato.id === registro.id) {
-        arreglo[contador].personaje = dato.personaje;
-        arreglo[contador].anime = dato.anime;
-      }
-      contador++;
-    });
-    this.setState({ data: arreglo, modalActualizar: false });
-  };
-
-  async componentDidMount() {
-    const res = await axios.get(
-      "https://y802ko2n3c.execute-api.us-east-2.amazonaws.com/dev/especialidades/probandoRut"
-    );
-    this.setState({ data: res.data });
-    // console.log(res.data);
+        formik.resetForm();
+        window.location.reload();
+        notifySuccess("Especialidad modificada con exito");
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
+  function openModal2(item) {
+    setModal2(true);
+    console.log(item);
+  }
+  async function update(item) {
+    await setModal(true);
+    await setDataTemp(item);
+    console.log(dataTemp);
   }
 
-  eliminar = (dato) => {
-    var opcion = window.confirm(
-      "Estás Seguro que deseas Eliminar el elemento " + dato.id
-    );
-    if (opcion == true) {
-      var contador = 0;
-      var arreglo = this.state.data;
-      arreglo.map((registro) => {
-        if (dato.id == registro.id) {
-          arreglo.splice(contador, 1);
-        }
-        contador++;
+  function getAllEspecialidades() {
+    var config = {
+      method: "get",
+      url: "https://gaxa5x44q1.execute-api.us-east-2.amazonaws.com/dev/especialidades/getAllEspecialidad",
+      headers: {},
+    };
+
+    axios(config)
+      .then(function (response) {
+        setData(response.data);
+        console.log(response.data);
+      })
+      .catch(function (error) {
+        console.log(error);
       });
-      this.setState({ data: arreglo, modalActualizar: false });
-    }
-  };
+  }
+  useEffect(() => {
+    getAllEspecialidades();
+  }, []);
+  function refreshPage() {
+    window.location.reload();
+  }
+  return (
+    <div>
+      <Container style={{ overflow: "scroll" }}>
+        <h1 style={{ marginTop: 30 }}>Gestion De Especialidades</h1>
 
-  insertar = () => {
-    var valorNuevo = { ...this.state.form };
-    valorNuevo.id = this.state.data.length + 1;
-    var lista = this.state.data;
-    lista.push(valorNuevo);
-    this.setState({ modalInsertar: false, data: lista });
-  };
-
-  handleChange = (e) => {
-    this.setState({
-      form: {
-        ...this.state.form,
-        [e.target.name]: e.target.value,
-      },
-    });
-  };
-
-  render() {
-    return (
-      <>
-        <Container>
-          <br />
-          <Button color="success" onClick={() => this.mostrarModalInsertar()}>
-            Crear
-          </Button>
-          <br />
-          <br />
-          <Table>
-            <thead>
-              <tr>
-                <th>Nombre Especialidad</th>
-                <th>Descripción Especialidad</th>
-                <th>Fecha Registro</th>
-                <th>Usuario Que Modifico</th>
-                <th>Fecha Modificacion"</th>
-                <th>Medico "estado"</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {this.state.data.map((dato) => (
-                <tr key={dato.especialidadId}>
-                  <td>{dato.nombreEspecialidad}</td>
-                  <td>{dato.descripcion}</td>
-                  <td>{dato.fechaRegistro}</td>
-                  <td>Juaneko</td>
-                  <td>{dato.modificacionRegistro}</td>
-
+        <Button
+          color="primary"
+          onClick={() => {
+            setModal3(true);
+          }}
+          style={{ marginBottom: "20px", marginTop: 15 }}
+        >
+          Agregar
+        </Button>
+        <Button
+          color="success"
+          onClick={() => {
+            refreshPage();
+          }}
+          style={{
+            marginBottom: "20px",
+            marginTop: 15,
+            marginTop: 15,
+            marginLeft: 15,
+          }}
+        >
+          Actualizar Pagina
+        </Button>
+        <Table>
+          <thead>
+            <tr>
+              <th>Nombre Especialidad</th>
+              <th>Fecha Registro</th>
+              <th>Usuario Modif</th>
+              <th>Descripcion</th>
+              <th>Modificacion Registro</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          {data.map((item) => {
+            return (
+              <tbody>
+                <tr>
                   <td
                     style={{
                       fontWeight: "bold",
-                      fontSize: 15,
-                      color: dato.estado === "ACTIVO" ? "blue" : "red",
+                      color: "primary",
+                      fontFamily: "century-gothic",
                     }}
                   >
-                    {dato.estado}
+                    {item.nombreEspecialidad}
                   </td>
+                  <td
+                    style={{
+                      fontWeight: "bold",
+                      color: "primary",
+                      fontFamily: "century gothic",
+                    }}
+                  >
+                    {item.fechaRegistro.split(".000Z")}{" "}
+                  </td>
+                  <td
+                    style={{
+                      fontWeight: "bold",
+                      color: "primary",
+                      fontFamily: "century-gothic",
+                    }}
+                  >
+                    {item.nameUser}
+                  </td>
+
+                  <td
+                    style={{
+                      fontWeight: "bolder",
+                      color: "primary",
+                      fontFamily: "century-gothic",
+                    }}
+                  >
+                    {item.descripcionEspecialidad}
+                  </td>
+                  <td
+                    style={{
+                      fontWeight: "bold",
+                      color: "blue",
+                      fontFamily: "century-gothic",
+                    }}
+                  >
+                    {item.fechaModificacion === "0000-00-00 00:00:00"
+                      ? "No hay actualizaciones por el momento"
+                      : item.fechaModificacion.split(
+                          "GMT+0000 (Coordinated Universal Time)"
+                        )}
+                  </td>
+                  <td style={{ fontWeight: "bold" }}>{item.estado}</td>
                   <td>
                     <Button
-                      style={{ backgroundColor: "#00b894" }}
-                      onClick={() => this.mostrarModalActualizar(dato)}
+                      color="warning"
+                      onClick={() => {
+                        update(item);
+                      }}
+                      style={{
+                        marginBottom: "20px",
+                        marginTop: 15,
+                        width: "100%",
+                      }}
                     >
-                      Editar
-                    </Button>{" "}
+                      Modificar
+                    </Button>
+                    <Button
+                      color="danger"
+                      onClick={() => {
+                        openModal2(item);
+                      }}
+                      style={{
+                        marginBottom: "20px",
+                        marginTop: 15,
+                        width: "100%",
+                      }}
+                    >
+                      Eliminar
+                    </Button>
                   </td>
                 </tr>
-              ))}
-            </tbody>
-          </Table>
-        </Container>
+              </tbody>
+            );
+          })}
+        </Table>
+      </Container>
+      <Modal isOpen={modal} toggle={() => setModal(false)}>
+        <ModalHeader toggle={() => setModal(false)}>
+          Editar Especialidad
+        </ModalHeader>
+        <ModalBody>
+          <FormGroup>
+            <label>Nombre Especialidad </label>
+            <input
+              id="nombreEspecialidad"
+              className="form-control"
+              type="text"
+              placeholder="Nombre Especialidad"
+              onChange={formik.handleChange}
+              value={formik.values.nombreEspecialidad}
+            />
+            {formik.errors.nombreEspecialidad ? (
+              <FormHelperText id="component-error-text" error>
+                {formik.errors.nombreEspecialidad}
+              </FormHelperText>
+            ) : null}
+          </FormGroup>
 
-        <Modal isOpen={this.state.modalActualizar}>
-          <ModalHeader>
-            <div>
-              <h3>Editar Registro</h3>
-            </div>
-          </ModalHeader>
-
-          <ModalBody>
-            <FormGroup>
-              <label>Id:</label>
-
-              <input
-                className="form-control"
-                readOnly
-                type="text"
-                value={this.state.form.id}
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <label>Personaje:</label>
-              <input
-                className="form-control"
-                name="personaje"
-                type="text"
-                onChange={this.handleChange}
-                value={this.state.form.personaje}
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <label>Anime:</label>
-              <input
-                className="form-control"
-                name="anime"
-                type="text"
-                onChange={this.handleChange}
-                value={this.state.form.anime}
-              />
-            </FormGroup>
-          </ModalBody>
-
-          <ModalFooter>
-            <Button color="yellow" onClick={() => this.editar(this.state.form)}>
-              Editar
-            </Button>
-            <Button color="danger" onClick={() => this.cerrarModalActualizar()}>
-              Cancelar
-            </Button>
-          </ModalFooter>
-        </Modal>
-
-        <Modal isOpen={this.state.modalInsertar}>
-          <ModalHeader>
-            <div>
-              <h3>Insertar Especialidad</h3>
-            </div>
-          </ModalHeader>
-
-          <ModalBody>
-            <FormGroup>
-              <label>Id:</label>
-
-              <input
-                className="form-control"
-                readOnly
-                type="text"
-                value={this.state.data.length + 1}
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <label> Especialidad:</label>
-              <br />
-              <select>
-                <option value="1"> Medicina Interna</option>
-                <option value="2">Pediatría </option>
-                <option value="3">Endocrinología</option>
-              </select>
-            </FormGroup>
-            <FormGroup>
-              <label>Descripción Especialidad:</label>
-              <input
-                className="form-control"
-                name="descripcion"
-                type="text"
-                onChange={this.handleChange}
-              />
-            </FormGroup>
-            <FormGroup>
-              <label>Estado:</label>
-              <input
-                className="form-control"
-                name="estado"
-                type="text"
-                onChange={this.handleChange}
-              />
-            </FormGroup>
-            <FormGroup>
-              <label>Nombre Especialidad:</label>
-              <input
-                className="form-control"
-                name="personaje"
-                type="text"
-                onChange={this.handleChange}
-              />
-            </FormGroup>
-            <FormGroup>
-              <label>Nombre Especialidad:</label>
-              <input
-                className="form-control"
-                name="personaje"
-                type="text"
-                onChange={this.handleChange}
-              />
-            </FormGroup>
-          </ModalBody>
-
-          <ModalFooter>
-            <Button color="primary" onClick={() => this.insertar()}>
-              Insertar
-            </Button>
-            <Button
-              className="btn btn-danger"
-              onClick={() => this.cerrarModalInsertar()}
+          <FormGroup>
+            <label>Estado</label>
+            <select
+              id="estado"
+              className="form-control"
+              onChange={formik.handleChange}
+              value={formik.values.estado}
             >
-              Cancelar
-            </Button>
-          </ModalFooter>
-        </Modal>
-      </>
-    );
-  }
-}
+              <option value="">Seleccione una opcion</option>
+              <option value="Activo">Activo</option>
+              <option value="Inactivo">Inactivo</option>
+            </select>
+          </FormGroup>
+
+          <FormGroup>
+            <label>Descripcion</label>
+            <textarea
+              id="descripcion"
+              type="text"
+              className="form-control"
+              placeholder="Descripcion"
+              onChange={formik.handleChange}
+              value={formik.values.descripcion}
+            />
+            {formik.errors.descripcion ? (
+              <FormHelperText id="component-error-text" error>
+                {formik.errors.descripcion}
+              </FormHelperText>
+            ) : null}
+          </FormGroup>
+        </ModalBody>
+        <ModalFooter>
+          <Button color="primary" onClick={() => actualizarEspecialidad()}>
+            Guardar
+          </Button>
+          <Button color="secondary" onClick={() => setModal(false)}>
+            Cancelar
+          </Button>
+        </ModalFooter>
+      </Modal>
+      <Modal isOpen={modal2} toggle={() => setModal2(false)}>
+        <ModalHeader toggle={() => setModal2(false)}>
+          Eliminar Especialidad
+        </ModalHeader>
+        <ModalBody>¿Esta seguro que desea eliminar la especialidad?</ModalBody>
+        <ModalFooter>
+          <Button color="primary" onClick={() => setModal2(false)}>
+            Eliminar
+          </Button>
+          <Button color="secondary" onClick={() => setModal2(false)}>
+            Cancelar
+          </Button>
+        </ModalFooter>
+      </Modal>
+      <Modal isOpen={modal3} toggle={() => setModal3(false)}>
+        <ModalHeader toggle={() => setModal3(false)}>
+          Agregar Especialidad
+        </ModalHeader>
+        <ModalBody>
+          <FormGroup>
+            <label>Nombre Especialidad</label>
+            <input
+              id="nombreEspecialidad"
+              type="text"
+              className="form-control"
+              placeholder="Nombre Especialidad"
+              onChange={formik.handleChange}
+            />
+          </FormGroup>
+          <FormGroup>
+            <label>Descripcion</label>
+            <textarea
+              id="descripcion"
+              type="text"
+              className="form-control"
+              placeholder="Descripcion"
+              onChange={formik.handleChange}
+            />
+          </FormGroup>
+        </ModalBody>
+        <ModalFooter>
+          <Button color="primary" onClick={() => addExpec()}>
+            Guardar
+          </Button>
+          <Button color="secondary" onClick={() => setModal3(false)}>
+            Cancelar
+          </Button>
+        </ModalFooter>
+      </Modal>
+    </div>
+  );
+};
 
 export default RegisterEspec;

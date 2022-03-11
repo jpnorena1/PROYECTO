@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import FormControl from "@material-ui/core/FormControl";
-import { Link, Route, useHistory } from "react-router-dom";
+
 import FormHelperText from "@material-ui/core/FormHelperText";
 import Input from "@material-ui/core/Input";
 import Select from "@material-ui/core/Select";
@@ -11,7 +11,7 @@ import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { authCodeUser } from "../_redux/authService";
+
 import axios from "axios";
 import { ToastContext } from "../../../../components/ToastContextProvider";
 
@@ -39,18 +39,13 @@ const TitleSection = styled.div`
   }
 `;
 
-const PatientInformation = () => {
+const SignUpMedic = () => {
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
+  const [especialidadId, setEspecialidadId] = "";
   const user = useSelector((state) => state.tokenStore.user.userId);
-
-  const { notifyError, notifySuccess } = useContext(ToastContext);
-  const history = useHistory();
-
-  useEffect(() => {
-    setLoading(false);
-    return () => setLoading(false);
-  }, []);
+  const [datas, setDatas] = useState([]);
+  const { notifySuccess } = useContext(ToastContext);
 
   const enableLoading = () => {
     setLoading(true);
@@ -58,16 +53,29 @@ const PatientInformation = () => {
   const disableLoading = () => {
     setLoading(false);
   };
-  function especialidades() {
-    var data = JSON.stringify({
-      usuarioModif: user,
-      nombreEspecialidad: formik.values.nombreEspecialidad,
+
+  function auths(event) {
+    event.preventDefault();
+    const prueba = formik.values.especialidadId;
+    console.log(prueba);
+    var data = {
+      nameUser: formik.values.nameUser,
+      phoneNumber: formik.values.phoneNumber,
+      lastName: formik.values.lastName,
+      firstName: formik.values.firstName,
+      password: formik.values.password,
+      email: formik.values.email,
       identificacion: formik.values.identificacion,
-    });
+      addres: formik.values.addres,
+      country: formik.values.country,
+      dateBirth: formik.values.dateBirth,
+      sex: formik.values.sex,
+      especialidadMedico: prueba,
+    };
 
     var config = {
       method: "post",
-      url: "https://y802ko2n3c.execute-api.us-east-2.amazonaws.com/dev/especialidades/registMedicEsp",
+      url: "https://gaxa5x44q1.execute-api.us-east-2.amazonaws.com/dev/administrador/registrarMedi",
       headers: {
         "Content-Type": "application/json",
       },
@@ -76,16 +84,14 @@ const PatientInformation = () => {
 
     axios(config)
       .then(function (response) {
-        console.log(JSON.stringify(response.data));
+        formik.resetForm();
+        notifySuccess("Registro exitoso");
       })
       .catch(function (error) {
         console.log(error);
+        enableLoading();
       });
-  }
-  async function auths(event) {
-    event.preventDefault();
-    await especialidades();
-    var data = JSON.stringify({
+    /*var data = JSON.stringify({
       nameUser: formik.values.nameUser,
       phoneNumber: formik.values.phoneNumber,
       lastName: formik.values.lastName,
@@ -101,7 +107,7 @@ const PatientInformation = () => {
 
     var config = {
       method: "post",
-      url: "https://y802ko2n3c.execute-api.us-east-2.amazonaws.com/dev/medico/registrarMedi",
+      url: "https://gaxa5x44q1.execute-api.us-east-2.amazonaws.com/dev/medico/registrarMedi",
       headers: {
         "Content-Type": "application/json",
       },
@@ -111,17 +117,15 @@ const PatientInformation = () => {
     await axios(config)
       .then(function (response) {
         const data = response.data.ok;
-        if (data === true) {
-          console.log("entramos");
-          notifySuccess("Usuario Administrador creado con exito");
-          history.push("/auth/login");
-        } else {
-          console.log("no entramos");
-        }
+        const { message, phone } = response.data;
+        especialidades({ message, phone });
+
+        notifySuccess("Usuario Administrador creado con exito");
+        history.push("/auth/login");
       })
       .catch(function (error) {
-        console.log(error);
-      });
+        //console.log(error);
+      });*/
   }
   const LoginSchema = Yup.object().shape({
     firstName: Yup.string()
@@ -174,6 +178,27 @@ const PatientInformation = () => {
       .required("Esta campo es requerido"),
   });
 
+  function getEspecialidad() {
+    var config = {
+      method: "get",
+      url: "https://gaxa5x44q1.execute-api.us-east-2.amazonaws.com/dev/administrador/getAll",
+      headers: {},
+    };
+
+    axios(config)
+      .then((response) => {
+        setDatas(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+
+  useEffect(() => {
+    setLoading(false);
+    getEspecialidad();
+    return () => setLoading(false);
+  }, []);
   const formik = useFormik({
     initialValues: {
       nameUser: "",
@@ -187,7 +212,7 @@ const PatientInformation = () => {
       country: "",
       dateBirth: "",
       sex: "",
-      nombreEspecialidad: "",
+      especialidadId: "",
     },
     validationSchema: LoginSchema,
     onSubmit: (values) => {},
@@ -220,7 +245,7 @@ const PatientInformation = () => {
 
         <WrapperField className="d-flex flex-row justify-content-center">
           <FormControl>
-            <InputLabel htmlFor="lastName">lastName</InputLabel>
+            <InputLabel htmlFor="lastName">Apellidos</InputLabel>
             <Input
               id="lastName"
               type="text"
@@ -256,7 +281,7 @@ const PatientInformation = () => {
 
         <WrapperField className="d-flex flex-row justify-content-center">
           <FormControl>
-            <InputLabel htmlFor="phoneNumber">phoneNumber</InputLabel>
+            <InputLabel htmlFor="phoneNumber">Numero de telefono</InputLabel>
             <Input
               id="phoneNumber"
               type="text"
@@ -273,7 +298,7 @@ const PatientInformation = () => {
         </WrapperField>
         <WrapperField className="d-flex flex-row justify-content-center">
           <FormControl>
-            <InputLabel htmlFor="phone">country</InputLabel>
+            <InputLabel htmlFor="phone">ciudad</InputLabel>
             <Input
               id="country"
               type="text"
@@ -290,7 +315,7 @@ const PatientInformation = () => {
         </WrapperField>
         <WrapperField className="d-flex flex-row justify-content-center">
           <FormControl>
-            <InputLabel htmlFor="historynumber">addres</InputLabel>
+            <InputLabel htmlFor="historynumber">Dirección</InputLabel>
             <Input
               id="addres"
               type="text"
@@ -311,7 +336,7 @@ const PatientInformation = () => {
         </TitleSection>
         <WrapperField className="d-flex flex-row justify-content-center">
           <FormControl>
-            <InputLabel htmlFor="email">email</InputLabel>
+            <InputLabel htmlFor="email">Correo</InputLabel>
             <Input
               id="email"
               type="text"
@@ -347,7 +372,7 @@ const PatientInformation = () => {
 
         <WrapperField className="d-flex flex-row justify-content-center">
           <FormControl>
-            <InputLabel htmlFor="password">password</InputLabel>
+            <InputLabel htmlFor="password">Contraseña</InputLabel>
             <Input
               id="password"
               type="password"
@@ -368,6 +393,7 @@ const PatientInformation = () => {
           <select
             id="sex"
             type="text"
+            className="d-flex flex-row justify-content-"
             onChange={formik.handleChange}
             value={formik.values.sex}
           >
@@ -383,23 +409,20 @@ const PatientInformation = () => {
         </WrapperField>
         <WrapperField className="d-flex flex-row justify-content-center">
           <InputLabel htmlFor="firstName">Especialidad</InputLabel>
-
           <select
-            id="nombreEspecialidad"
+            id="especialidadId"
             type="text"
             onChange={formik.handleChange}
+            value={formik.values.especialidadId}
           >
-            <option>Medicina Interna</option>
-            <option>Ginecologia</option>
-            <option>Pediatria</option>
-            <option>Endocrinología</option>
+            {datas
+              ? datas.map((data) => (
+                  <option value={data.especialidadId}>
+                    {data.nombreEspecialidad}
+                  </option>
+                ))
+              : null}
           </select>
-
-          {formik.errors.nombreEspecialidad ? (
-            <FormHelperText id="component-error-text" error>
-              {formik.errors.nombreEspecialidad}
-            </FormHelperText>
-          ) : null}
         </WrapperField>
         <WrapperField className="d-flex flex-row justify-content-center">
           <FormControl>
@@ -426,7 +449,7 @@ const PatientInformation = () => {
             className="mr-2"
             onClick={auths}
           >
-            Save
+            GUARDAR
           </Button>
           {loading && <CircularProgress color="secondary" />}
         </WrapperButton>
@@ -435,4 +458,4 @@ const PatientInformation = () => {
   );
 };
 
-export default PatientInformation;
+export default SignUpMedic;

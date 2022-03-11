@@ -15,7 +15,10 @@ import {
   setDoctors,
   setDoctorsUsers,
 } from "../app/modules/Auth/_redux/authAction";
-
+import { IconButton, Collapse } from "@material-ui/core";
+import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
+import ArrowDropUpIcon from "@material-ui/icons/ArrowDropUp";
+import "bootstrap/dist/css/bootstrap.min.css";
 const MenuContainer = styled.div`
   min-height: 75vh;
   background-color: #3f51b5;
@@ -63,7 +66,7 @@ const MenuContainer = styled.div`
     li:active {
       background-color: grey;
       margin: 0;
-      padding: 5px 0px 10px 15px;
+
       color: #fff;
     }
   }
@@ -72,6 +75,8 @@ const MenuContainer = styled.div`
 const MenuList = () => {
   const dispatch = useDispatch();
   const { path, url } = useRouteMatch();
+  const isUser = useSelector((state) => state.tokenStore.user);
+
   const isRole = useSelector((state) => state.tokenStore.user.role);
   const array = {
     isRole: useSelector((state) => state.tokenStore.user.role),
@@ -86,16 +91,16 @@ const MenuList = () => {
     ],
     medico: [
       {
-        name: "Inicio",
-      },
-      {
-        name: "Citas",
-      },
-      {
         name: "Visualizar Agenda",
       },
       {
         name: "Perfil",
+      },
+      {
+        name: "Historial Clinico",
+      },
+      {
+        name: "Historial citas",
       },
     ],
     admin: [
@@ -115,20 +120,28 @@ const MenuList = () => {
       {
         name: "Citas",
       },
+      {
+        name: "Historial Clinico",
+      },
+      {
+        name: "Medicamentos",
+      },
+      {
+        name: "Examenes",
+      },
     ],
-    secretaria: [
-    
+    Secretaria: [
       {
         name: "Perfil",
-       
       },
       {
         name: "Registrar Paciente",
-    
       },
       {
         name: "Citas",
-      
+      },
+      {
+        name: "Historial Clinico",
       },
     ],
   };
@@ -164,11 +177,10 @@ const MenuList = () => {
                     <span
                       style={{
                         borderColor: "red",
-                        borderRadius: 15,
-                        color: "#f5f5f5",
+
                         fontWeight: "bold",
-                        padding: 5,
-                        fontSize: 20,
+
+                        fontSize: 15,
                         fontFamily: "century gothic",
                       }}
                     >
@@ -203,8 +215,8 @@ const MenuList = () => {
                         borderRadius: 15,
                         color: "#f5f5f5",
                         fontWeight: "bold",
-                        padding: 5,
-                        fontSize: 20,
+
+                        fontSize: 15,
                         fontFamily: "century gothic",
                       }}
                     >
@@ -251,13 +263,14 @@ const MenuList = () => {
                 </li>
               ))
             : null}
-          {array.isRole === "secretaria"
-            ? array.secretaria.map((item, index) => (
+          {array.isRole === "Secretaria"
+            ? array.Secretaria.map((item, index) => (
                 <li
                   key={index}
                   style={{
                     borderRadiusColor: "red",
                     borderRadius: 15,
+
                     borderColor: "red",
                     borderWidth: 1,
                   }}
@@ -276,8 +289,8 @@ const MenuList = () => {
                         borderRadius: 15,
                         color: "#f5f5f5",
                         fontWeight: "bold",
-                        padding: 5,
-                        fontSize: 20,
+
+                        fontSize: 14,
                         fontFamily: "century gothic",
                       }}
                     >

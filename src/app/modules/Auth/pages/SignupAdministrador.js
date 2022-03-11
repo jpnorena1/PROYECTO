@@ -74,7 +74,7 @@ const PatientInformation = () => {
 
     var config = {
       method: "post",
-      url: "https://y802ko2n3c.execute-api.us-east-2.amazonaws.com/dev/medico/registrarAdmin",
+      url: "https://gaxa5x44q1.execute-api.us-east-2.amazonaws.com/dev/administrador/registrarAdmin",
       headers: {
         "Content-Type": "application/json",
       },

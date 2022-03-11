@@ -372,7 +372,7 @@ import { Link, Route, useHistory } from "react-router-dom";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import Input from "@material-ui/core/Input";
 import Select from "@material-ui/core/Select";
-  
+
 import InputLabel from "@material-ui/core/InputLabel";
 import Button from "@material-ui/core/Button";
 import CircularProgress from "@material-ui/core/CircularProgress";
@@ -428,52 +428,46 @@ const PatientInformation = () => {
   const disableLoading = () => {
     setLoading(false);
   };
-function auths(e){
-  e.preventDefault();
-  var data = JSON.stringify({
-    "nameUser": formik.values.nameUser,
-    "phoneNumber": formik.values.phoneNumber,
-    "lastName": formik.values.lastName,
-    "firstName": formik.values.firstName,
-    "password": formik.values.password,
-    "email": formik.values.email,
-    "identificacion": formik.values.identificacion,
-    "addres": formik.values.addres,
-    "country": formik.values.country,
-    "dateBirth": formik.values.dateBirth,
-    "sex": formik.values.sex,
-  });
-  
-  var config = {
-    method: 'post',
-    url: 'https://y802ko2n3c.execute-api.us-east-2.amazonaws.com/dev/medico/registrarSec',
-    headers: { 
-      'Content-Type': 'application/json'
-    },
-    data : data
-  };
-  
-  axios(config)
+  function auths(e) {
+    e.preventDefault();
+    var data = JSON.stringify({
+      nameUser: formik.values.nameUser,
+      phoneNumber: formik.values.phoneNumber,
+      lastName: formik.values.lastName,
+      firstName: formik.values.firstName,
+      password: formik.values.password,
+      email: formik.values.email,
+      identificacion: formik.values.identificacion,
+      addres: formik.values.addres,
+      country: formik.values.country,
+      dateBirth: formik.values.dateBirth,
+      sex: formik.values.sex,
+    });
 
-  .then(function (response) {
-    const data=response.data.ok;
-    if(data ===true){
-      console.log("entramos");
-      notifySuccess("Usuario Administrador creado con exito");
-      history.push("/auth/login");
-   
-    }else{  
-      console.log("no entramos")
-    }
+    var config = {
+      method: "post",
+      url: "https://gaxa5x44q1.execute-api.us-east-2.amazonaws.com/dev/administrador/registrarSec",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      data: data,
+    };
 
-    
-
-  })
-  .catch(function (error) {
-    console.log(error);
-  });
-  
-} 
+    axios(config)
+      .then(function (response) {
+        const data = response.data.ok;
+        if (data === true) {
+          console.log("entramos");
+          notifySuccess("Usuario Administrador creado con exito");
+          history.push("/auth/login");
+        } else {
+          console.log("no entramos");
+        }
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
   const LoginSchema = Yup.object().shape({
     firstName: Yup.string()
       .min(3, "Minimum 3 symbols")
@@ -519,7 +513,7 @@ function auths(e){
       .min(3, "Minimum 3 symbols")
       .max(50, "Maximum 50 symbols")
       .required("Esta campo es requerido"),
-      sex: Yup.string()
+    sex: Yup.string()
       .min(3, "Minimum 3 symbols")
       .max(50, "Maximum 50 symbols")
       .required("Esta campo es requerido"),
@@ -527,27 +521,24 @@ function auths(e){
 
   const formik = useFormik({
     initialValues: {
-    nameUser: "",
-    phoneNumber: "",
-    lastName: "",
-    firstName: "",
-    password: "",
-    email: "",
-    identificacion: "",
-    addres: "",
-    country: "",
-    dateBirth: "",
-    sex: "",
+      nameUser: "",
+      phoneNumber: "",
+      lastName: "",
+      firstName: "",
+      password: "",
+      email: "",
+      identificacion: "",
+      addres: "",
+      country: "",
+      dateBirth: "",
+      sex: "",
     },
     validationSchema: LoginSchema,
-    onSubmit: (values) => {
-      
-       
-    },
+    onSubmit: (values) => {},
   });
 
   return (
-    <form onSubmit= {formik.handleSubmit}  >
+    <form onSubmit={formik.handleSubmit}>
       <WrapperLogin className="d-flex flex-column align-items-center">
         <TitleSection>
           <h3>Informacion Personal</h3>
@@ -570,7 +561,7 @@ function auths(e){
             ) : null}
           </FormControl>
         </WrapperField>
-        
+
         <WrapperField className="d-flex flex-row justify-content-center">
           <FormControl>
             <InputLabel htmlFor="lastName">lastName</InputLabel>
@@ -716,37 +707,31 @@ function auths(e){
           </FormControl>
         </WrapperField>
         <WrapperField className="d-flex flex-row justify-content-center">
-         
-            <InputLabel htmlFor="firstName">Sexo</InputLabel>
-            
-            <select
-              id="sex"
-              type="text"
-              onChange={formik.handleChange}
-              value={formik.values.sex}
-            >
-              <option>Masculino</option>
-              <option>Femenino</option>
-              </select>
+          <InputLabel htmlFor="firstName">Sexo</InputLabel>
 
+          <select
+            id="sex"
+            type="text"
+            onChange={formik.handleChange}
+            value={formik.values.sex}
+          >
+            <option>Masculino</option>
+            <option>Femenino</option>
+          </select>
 
-            {formik.errors.sex ? (
-              <FormHelperText id="component-error-text" error>
-                {formik.errors.sex}
-              </FormHelperText>
-            ) : null}
-         
+          {formik.errors.sex ? (
+            <FormHelperText id="component-error-text" error>
+              {formik.errors.sex}
+            </FormHelperText>
+          ) : null}
         </WrapperField>
         <WrapperField className="d-flex flex-row justify-content-center">
           <FormControl>
-            
             <Input
               id="dateBirth"
               type="date"
               onChange={formik.handleChange}
-          
               value={formik.values.dateBirth}
-
               aria-describedby="component-error-text"
             />
             {formik.errors.dateBirth ? (
@@ -763,7 +748,6 @@ function auths(e){
             color="primary"
             type="submit"
             onClick={auths}
-            
           >
             Save
           </Button>

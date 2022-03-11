@@ -20,7 +20,11 @@ import Button from "@material-ui/core/Button";
 import Dashboar from "../../../components/inicioAdmin";
 import SignupAdministrador from "../Auth/pages/SignupAdministrador";
 import CardsHeader from "../../../components/CardsHeader";
-
+import CitaMedico from "./Pages/CitaMedico";
+import SearchHistory from "./Pages/SearchHistory";
+import HistorialCitas from "./Pages/HistorialCitas";
+import Medicamentos from "./Pages/Medicamentos";
+import Examen from "./Pages/Examen";
 const Wrapper = styled.div``;
 
 const LeftContainer = styled.div`
@@ -53,7 +57,7 @@ const BottonContainer = styled.div`
 const Dashboard = () => {
   const myStyle = {
     backgroundImage:
-      "url('https://i.pinimg.com/564x/83/60/4d/83604dfcdfc757cea47ae170cbacfc19.jpg')')",
+      "url('https://i.pinimg.com/564x/83/60/4d/83604dfcdfc757cea47ae170cbacfc19.jpg')",
 
     backgroundSize: "cover",
     backgroundRepeat: "no-repeat",
@@ -69,15 +73,13 @@ const Dashboard = () => {
   const prueba = useSelector((state) => state);
   const user = useSelector((state) => state);
   const users = user.tokenStore.user.role;
-  console.log(users, "dashboard");
+
+  const unas = user.tokenStore.user.userId;
 
   return (
     <>
       <PrimarySearchAppBar />
-      <Wrapper
-        className="container-fluid flex-nowrap"
-      
-      >
+      <Wrapper className="container-fluid flex-nowrap">
         <div
           className="row flex-row flex-nowrap .MuiAppBar-colorPrimary {"
           style={{ backgroundColor: "#3F51B5" }}
@@ -88,7 +90,7 @@ const Dashboard = () => {
                 <LogoContainer />
               </div>
             </div>
-            <div className="col m-0 p-0">
+            <div>
               <MenuList />
             </div>
           </LeftContainer>
@@ -117,20 +119,22 @@ const Dashboard = () => {
                     <h2>Citas</h2>
                     <AgendarCitaAdmin />
                   </Route>
-                  <Route path={`${path}/Visualizar_Agenda`}>
-                    <FullCalendarEven />
+                  <Route path={`${path}/Historial_Clinico`}>
+                    <SearchHistory />
                   </Route>
                   <Route path={`${path}/Especialidades`}>
                     <RegisterEspec />
                   </Route>
-                  <Route path={`${path}/Inicio_admin`}>
-                    <Appointment />
+                  <Route path={`${path}/Medicamentos`}>
+                    <Medicamentos />
+                  </Route>
+                  <Route path={`${path}/Examenes`}>
+                    <Examen />
                   </Route>
 
                   <Route path={`${path}/Registrar_Paciente/paciente`}>
                     <PatientInformation />
                   </Route>
-                  <Redirect from="/" to="/Dashboard" />
 
                   <Route path={`${path}/Registrar_Auxiliar/auxiliar`}>
                     <SignupAuxiliar />
@@ -305,13 +309,12 @@ const Dashboard = () => {
                   </Route>
                 </>
               ) : null}
-              {users === "secretaria" ? (
+              {users === "Secretaria" ? (
                 <>
-                 
                   <Route path={`${path}/Perfil`}>
                     <ProfileUser />
                   </Route>
-                     
+
                   <Route path={`${path}/Citas`}>
                     <AgendarCitaAdmin />
                   </Route>
@@ -320,6 +323,13 @@ const Dashboard = () => {
                   </Route>
                   <Route path={`${path}/Registrar_Usuario/medico`}>
                     <SignupMedic />
+                    <link
+                      rel="stylesheet"
+                      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+                    />
+                  </Route>
+                  <Route path={`${path}/Historial_Clinico`}>
+                    <SearchHistory />
                   </Route>
                 </>
               ) : null}
@@ -352,16 +362,20 @@ const Dashboard = () => {
                   <Route path={`${path}/Inicio`}>
                     <Appointment />
                   </Route>
-                  <Route path={`${path}/Citas`}>
-                    <Appointment />
-                  </Route>
 
                   <Route path={`${path}/Perfil`}>
                     <ProfileUser />
                   </Route>
 
                   <Route path={`${path}/Visualizar_Agenda`}>
-                    <FullCalendarEven />
+                    <CitaMedico unas={unas} />
+                  </Route>
+
+                  <Route path={`${path}/Historial_Clinico`}>
+                    <SearchHistory />
+                  </Route>
+                  <Route path={`${path}/Historial_citas`}>
+                    <HistorialCitas />
                   </Route>
                 </>
               ) : null}

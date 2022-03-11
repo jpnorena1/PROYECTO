@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useContext } from "react";
 import FormControl from "@material-ui/core/FormControl";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import Input from "@material-ui/core/Input";
@@ -38,7 +38,7 @@ const Login = () => {
   const { notifyError, notifySuccess } = useContext(ToastContext);
 
   const enableLoading = () => {
-    setLoading(true);
+    setLoading(false);
   };
   const disableLoading = () => {
     setLoading(false);
@@ -66,14 +66,14 @@ const Login = () => {
         .then((response) => {
           const token = response[0].token;
           const user = response[0].user;
-           console.log(user, "user");
+          console.log(user, "user");
           dispatch(saveMyUser(user));
           dispatch(setToken(token));
 
           notifySuccess("Login success");
         })
         .catch((error) => {
-          //console.log(error);
+          console.log(error);
           notifyError("Login failed");
         });
     },
